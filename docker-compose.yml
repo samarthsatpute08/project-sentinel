@@ -1,0 +1,60 @@
+networks:
+  sentinel-net:
+    driver: bridge
+
+services:
+
+  primary-api:
+    build: ./primary-api
+    container_name: primary-api
+    networks: [sentinel-net]
+    environment:
+      PORT: "8081"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/ || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  fallback-api:
+    build: ./fallback-api
+    container_name: fallback-api
+    networks: [sentinel-net]
+    environment:
+      PORT: "8082"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/ || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  toxiproxy:
+    image: ghcr.io/shopify/toxiproxy:latest
+    container_name: toxiproxy
+    networks: [sentinel-net]
+    ports:
+      - "8474:8474"
+      - "8091:8091"
+    command: ["-host=0.0.0.0"]
+
+  sentinel-backend:
+    build: ./backend
+    container_name: sentinel-backend
+    networks: [sentinel-net]
+    ports:
+      - "8080:8080"
+    environment:
+      PRIMARY_URL: "http://toxiproxy:8091"
+      FALLBACK_URL: "http://fallback-api:8082"
+      PORT: "8080"
+    mem_limit: 128m
+    memswap_limit: 128m
+    depends_on:
+      primary-api:
+        condition: service_healthy
+      fallback-api:
+        condition: service_healthy
+      toxiproxy:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/
