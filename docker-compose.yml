@@ -57,4 +57,17 @@ services:
       toxiproxy:
         condition: service_started
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  sentinel-frontend:
+    build: ./frontend
+    container_name: sentinel-frontend
+    networks: [sentinel-net]
+    ports:
+      - "3000:80"
+    depends_on:
+      sentinel-backend:
+        condition: service_healthy
