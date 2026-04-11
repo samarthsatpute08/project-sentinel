@@ -31,7 +31,10 @@ curl -s -X POST "$TOXI_API/proxies/primary-api/toxics" \
 
 curl -s -X POST "$TOXI_API/proxies/primary-api/toxics" \
   -H "Content-Type: application/json" \
-  -d '{
-    "name": "packet-loss-20pct",
-    "type": "bandwidth",
-    "stream": "
+  -d '{"name":"packet-loss-20pct","type":"bandwidth","stream":"downstream","toxicity":0.2,"attributes":{"rate":0}}'
+
+echo ""
+echo "=== Chaos injected! Watch http://localhost:3000 ==="
+echo "To recover, run:"
+echo "  curl -X DELETE $TOXI_API/proxies/primary-api/toxics/latency-500ms"
+echo "  curl -X DELETE $TOXI_API/proxies/primary-api/toxics/packet-loss-20pct"
