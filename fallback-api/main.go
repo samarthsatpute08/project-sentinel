@@ -15,4 +15,3 @@ func main() {
 		port = "8082"
 	}
 	http.ListenAndServe(":"+port, nil)
-}
