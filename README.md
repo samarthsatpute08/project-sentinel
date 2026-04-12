@@ -85,7 +85,10 @@ You will see:
 curl -X DELETE http://localhost:8474/proxies/primary-api/toxics/latency-500ms
 curl -X DELETE http://localhost:8474/proxies/primary-api/toxics/packet-loss-20pct
 ```
-
+**Step 5** - Then send the traffic again
+```bash
+for i in $(seq 1 20); do curl -s http://localhost:8080/api/test; done
+```
 The circuit will move from OPEN → HALF-OPEN → CLOSED as it confirms 
 the primary is healthy again.
 
