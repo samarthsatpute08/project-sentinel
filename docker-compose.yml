@@ -29,13 +29,15 @@ services:
       retries: 5
 
   toxiproxy:
-    image: ghcr.io/shopify/toxiproxy:latest
+    image: ghcr.io/shopify/toxiproxy:2.9.0
     container_name: toxiproxy
+    platform: linux/amd64
     networks: [sentinel-net]
     ports:
       - "8474:8474"
       - "8091:8091"
     command: ["-host=0.0.0.0"]
+    restart: always
 
   sentinel-backend:
     build: ./backend
